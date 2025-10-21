@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hoa Nở Đón Ngày 20/10</title>
+    <style>
+        /* ================================================= */
+        /* BASE STYLES                                   */
+        /* ================================================= */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #ffe0f0; /* Nền hồng nhạt */
+            overflow: hidden; /* Quan trọng để ẩn các phần tử rơi bên ngoài */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+            color: #4a148c;
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+        }
+
+        /* ================================================= */
+        /* MÀN HÌNH BAN ĐẦU                              */
+        /* ================================================= */
+        .initial-screen {
+            transition: opacity 1s ease-out;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .hidden {
+            opacity: 0;
+            pointer-events: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .welcome-text {
+            font-size: 3em;
+            color: #d81b60; /* Hồng đậm */
+            margin-bottom: 30px;
+            font-weight: bold;
+            animation: pulse 1.5s infinite alternate;
+        }
+
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.05); }
+        }
+
+        .date-button {
+            padding: 15px 30px;
+            font-size: 1.5em;
+            color: white;
+            background-color: #e91e63; /* Màu nút */
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s, transform 0.1s;
+        }
+
+        .date-button:hover {
+            background-color: #c2185b;
+            transform: scale(1.05);
+        }
+
+        .date-button:active {
+            transform: scale(0.98);
+        }
+
+        /* ================================================= */
+        /* MÀN HÌNH HOA NỞ                               */
+        /* ================================================= */
+        .flower-screen {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end; /* Đặt hoa ở dưới cùng */
+            opacity: 0;
+            transition: opacity 1s ease-in;
+            z-index: 5;
+            padding-bottom: 50px;
+            box-sizing: border-box;
+        }
+
+        .flower-screen.visible {
+            opacity: 1;
+        }
+
+        .flower-bed {
+            display: flex;
+            justify-content: space-around;
+            width: 90%;
+            max-width: 1200px;
+            align-items: flex-end;
+            position: absolute;
+            bottom: 0;
+        }
+
+        .flower-container {
+            width: 15%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.5s ease-out;
+            opacity: 0;
+        }
+
+        .flower-container.bloom {
+            opacity: 1;
+            animation: fadeIn 1s forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .stem {
+            width: 5px;
+            height: 200px; /* Chiều cao thân cây */
+            background-color: #81c784; /* Xanh lá */
+            border-radius: 5px;
+            transform-origin: bottom;
+        }
+
+        .flower {
+            position: relative;
+            width: 70px;
+            height: 70px;
+            background-color: #f48fb1; /* Màu hoa ban đầu */
+            border-radius: 50%;
+            transform: scale(0);
+            margin-bottom: -35px; /* Để hoa chạm vào thân */
+            transition: transform 1s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 0 15px rgba(233, 30, 99, 0.5);
+        }
+
+        .flower::before, .flower::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background-color: inherit;
+        }
+
+        .flower::before {
+            transform: rotate(60deg);
+        }
+
+        .flower::after {
+            transform: rotate(-60deg);
+        }
+
+        .flower-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            background-color: #ffb74d; /* Màu nhụy */
+            border-radius: 50%;
+            z-index: 2;
+        }
+
+        .flower.bloomed {
+            transform: scale(1);
+            background-color: #ec407a; /* Màu hoa khi nở */
+        }
+
+        /* ================================================= */
+        /* LỜI CHÚC                                      */
+        /* ================================================= */
+        .message-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #880e4f;
+            font-size: 1.5em;
+            font-weight: 500;
+            line-height: 1.6;
+            text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.8);
+            opacity: 0;
+            transition: opacity 1s ease-in 1s; /* Xuất hiện sau khi hoa nở */
+            max-width: 80%;
+            z-index: 20;
+        }
+
+        .message-text.show {
+            opacity: 1;
+        }
+
+        /* ================================================= */
+        /* HIỆU ỨNG RƠI                                  */
+        /* ================================================= */
+        .falling-item {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 15;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="initial-screen" id="initialScreen">
+        <div class="container">
+            <div style="position: fixed; top: 10px; right: 20px; font-size: 1.1em; color: #d81b60;">
+            <p class="welcome-text">
+                🌸 Chúc mừng ngày Phụ nữ Việt Nam 💖
+            </p>
+            <button class="date-button" id="startButton">
+                ✨ 20/10 ✨
+            </button>
+        </div>
+    </div>
+
+    <div class="flower-screen" id="flowerScreen">
+        
+        <p class="message-text" id="messageText">
+            Nhân ngày Phụ nữ Việt Nam **20/10** 🌸,
+            <br>
+            Chúc những cô gái xinh đẹp, đáng yêu của lớp mình
+            luôn **tươi cười rạng rỡ** như nắng mai ☀️,
+            học giỏi, **tự tin** và thành công trên con đường mình chọn.
+            <br><br>
+            Cảm ơn vì đã luôn mang lại tiếng cười, sự ấm áp và **năng lượng tích cực** cho cả lớp 💕
+            <br><br>
+            Chúc các bạn mỗi ngày đều là một ngày đặc biệt –
+            được yêu thương, được quan tâm và **luôn hạnh phúc**! 🌷
+            <br>
+            Happy Vietnamese Women’s Day! 💖
+        </p>
+
+        <div class="flower-bed">
+            <div class="flower-container" id="flower1">
+                <div class="flower" style="background-color: #f06292;">
+                    <div class="flower-center"></div>
+                </div>
+                <div class="stem" style="height: 180px;"></div>
+            </div>
+
+            <div class="flower-container" id="flower2">
+                <div class="flower" style="background-color: #e91e63;">
+                    <div class="flower-center"></div>
+                </div>
+                <div class="stem" style="height: 220px;"></div>
+            </div>
+
+            <div class="flower-container" id="flower3">
+                <div class="flower" style="background-color: #c2185b;">
+                    <div class="flower-center"></div>
+                </div>
+                <div class="stem" style="height: 160px;"></div>
+            </div>
+
+            <div class="flower-container" id="flower4">
+                <div class="flower" style="background-color: #f48fb1;">
+                    <div class="flower-center"></div>
+                </div>
+                <div class="stem" style="height: 200px;"></div>
+            </div>
+            
+            <div class="flower-container" id="flower5">
+                <div class="flower" style="background-color: #ff527c;">
+                    <div class="flower-center"></div>
+                </div>
+                <div class="stem" style="height: 190px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('startButton').addEventListener('click', () => {
+            const initialScreen = document.getElementById('initialScreen');
+            const flowerScreen = document.getElementById('flowerScreen');
+            const messageText = document.getElementById('messageText');
+            const flowers = document.querySelectorAll('.flower-container');
+            const flowerHeads = document.querySelectorAll('.flower');
+
+            // 1. Ẩn màn hình ban đầu
+            initialScreen.classList.add('hidden');
+            
+            // Chờ CSS transition kết thúc (1s) rồi mới hiện màn hình hoa
+            setTimeout(() => {
+                initialScreen.style.display = 'none';
+                flowerScreen.classList.add('visible');
+                
+                // 2. Kích hoạt hiệu ứng hoa nở và hiển thị thân cây
+                flowers.forEach((flowerContainer, index) => {
+                    // Trễ để tạo hiệu ứng lần lượt
+                    setTimeout(() => {
+                        flowerContainer.classList.add('bloom');
+                        // Sau khi thân cây và cuống hoa đã hiện, bắt đầu nở
+                        setTimeout(() => {
+                            flowerHeads[index].classList.add('bloomed');
+                        }, 500); // Nở sau 0.5s thân cây xuất hiện
+                    }, index * 200); // Mỗi hoa trễ 0.2s so với hoa trước
+                });
+
+                // 3. Hiển thị lời chúc sau khi tất cả hoa đã nở
+                setTimeout(() => {
+                    messageText.classList.add('show');
+                }, flowers.length * 200 + 1000); // Tổng thời gian nở + 1s
+
+                // 4. Bắt đầu hiệu ứng rơi của các phần tử
+                startFallingItems();
+
+            }, 1000); // Ẩn màn hình ban đầu mất 1s
+
+        });
+
+        // =================================================
+        //                 FALLING ITEMS LOGIC
+        // =================================================
+        function createFallingItem() {
+            const item = document.createElement('div');
+            item.classList.add('falling-item');
+
+            const size = Math.random() * 15 + 10; // Kích thước 10px đến 25px
+            item.style.width = `${size}px`;
+            item.style.height = `${size}px`;
+            
+            // Ngẫu nhiên hoa hoặc tim
+            const type = Math.random();
+            if (type < 0.3) {
+                // Tim (như trong video)
+                item.style.backgroundColor = '#d81b60'; 
+                item.style.borderRadius = '0'; // Không tròn
+                // Tạo hình trái tim đơn giản bằng transform
+                item.style.transform = 'rotate(-45deg)';
+                item.style.clipPath = 'polygon(50% 100%, 0 40%, 0 0, 100% 0, 100% 40%)';
+            } else if (type < 0.6) {
+                // Hoa cánh đơn giản (như trong video)
+                item.style.backgroundColor = '#ec407a';
+                item.style.boxShadow = '0 0 5px rgba(255, 255, 255, 0.5)';
+            } else {
+                // Hoa cánh đơn giản màu hồng nhạt hơn
+                item.style.backgroundColor = '#f8bbd0';
+                item.style.boxShadow = '0 0 5px rgba(255, 255, 255, 0.5)';
+            }
+
+            // Vị trí xuất phát ngẫu nhiên
+            item.style.left = `${Math.random() * 100}vw`; 
+            item.style.top = `-${size}px`; // Bắt đầu từ ngoài màn hình
+
+            // Tốc độ rơi và thời gian hoạt hình ngẫu nhiên
+            const duration = Math.random() * 10 + 5; // 5s đến 15s
+            item.style.animationDuration = `${duration}s`;
+            item.style.animationDelay = `-${Math.random() * duration}s`; // Bắt đầu ở các giai đoạn khác nhau
+
+            document.body.appendChild(item);
+
+            // Xóa phần tử sau khi rơi xong để tiết kiệm bộ nhớ
+            item.addEventListener('animationiteration', () => {
+                item.remove();
+            });
+
+            // Xóa sau một khoảng thời gian dài nếu animation không kích hoạt lại (dự phòng)
+            setTimeout(() => {
+                if(document.body.contains(item)) {
+                    item.remove();
+                }
+            }, duration * 1000 + 1000);
+        }
+
+        function startFallingItems() {
+            // Tạo một luồng hiệu ứng rơi
+            setInterval(createFallingItem, 200); // Tạo một phần tử rơi mới mỗi 0.2 giây
+        }
+    </script>
+
+</body>
+</html>
